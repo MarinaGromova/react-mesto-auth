@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Route, Routes, useNavigate, Navigate } from "react-router-dom";
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
@@ -9,7 +10,6 @@ import EditProfilePopup from "./EditProfilePopup";
 import ImagePopup from "./ImagePopup";
 import api from "../utils/Api";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
-import { Route, Routes, useNavigate, Navigate } from "react-router-dom";
 import Register from "./Register";
 import Login from "./Login";
 import InfoTooltip from "./InfoTooltip";
@@ -23,7 +23,6 @@ function App() {
   const [isEditProfilePopupOpen, setEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setAddPlacePopupOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
-  // const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
   const [renderLoading, setrenderLoading] = useState(false);
@@ -33,12 +32,10 @@ function App() {
   const [emailLogin, setEmailLogin] = useState(null);
   const [isImagePopup, setImagePopup] = useState("");
   const [isTitlePopup, setTitlePopup] = useState("");
-  const navigate = useNavigate(); // хук, который позволяет управлять роутинком (тоже самое что навигейт, только не в разметке)
+  const navigate = useNavigate();
 
   //регистрация
-  const handleRegister = ({password, email}) => {
-    // console.log(password)
-    // console.log(email)
+  const handleRegister = ({ password, email }) => {
     auth
       .register(password, email)
       .then(() => {
@@ -54,14 +51,12 @@ function App() {
   };
 
   //запрос на авторизацию
-  const handleLogin = ({password, email}) => {
-    console.log(password)
-    console.log(email)
+  const handleLogin = ({ password, email }) => {
     auth
       .authorize(password, email)
       .then((response) => {
         localStorage.setItem("jwt", response.token);
-        setLoggedIn(true); //если есть jwt, то логинем
+        setLoggedIn(true);
         setEmailLogin(email);
         navigate("/");
       })
@@ -77,31 +72,24 @@ function App() {
     setEmailLogin(null);
     navigate("/sign-in");
     localStorage.removeItem("jwt");
-  }
-
+  };
 
   useEffect(() => {
     const jwt = localStorage.getItem("jwt");
-    if(jwt) {
-      auth.tockenCheck(jwt).then((response) => {
-        if(response) {
-          setLoggedIn(true);
-          setEmailLogin(response.data.email);
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      })
+    if (jwt) {
+      auth
+        .tockenCheck(jwt)
+        .then((response) => {
+          if (response) {
+            setLoggedIn(true);
+            setEmailLogin(response.data.email);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     }
   }, []);
-
-  
-  useEffect(() => {
-    if (loggedIn === true) {
-      navigate("/");
-    }
-  }, [loggedIn, navigate]);
-
 
   useEffect(() => {
     if (loggedIn) {
@@ -113,6 +101,20 @@ function App() {
         .catch((err) => console.log(err));
     }
   }, [loggedIn]);
+
+  useEffect(() => {
+    const closeByEscape = (e) => {
+      if (e.key === "Escape") {
+        closeAllPopups();
+      }
+    };
+    return document.addEventListener("keydown", closeByEscape);
+  }, [
+    isEditAvatarPopupOpen,
+    isEditProfilePopupOpen,
+    isAddPlacePopupOpen,
+    infoTooltip,
+  ]);
 
   const handleEditAvatarClick = () => {
     setEditAvatarPopupOpen(true);
@@ -129,7 +131,6 @@ function App() {
     setSelectedCard({ name: card.name, link: card.link });
   };
 
-  //информация
   const handleInfoTooltip = () => {
     setInfoTooltip(true);
   };
@@ -191,7 +192,7 @@ function App() {
       .finally(() => setrenderLoading(false));
   };
 
-  function handleAddPlaceSubmit(data) {
+  const handleAddPlaceSubmit = (data) => {
     setrenderLoading(true);
     api
       .postAddCard(data)
@@ -203,13 +204,12 @@ function App() {
       .finally(() => setrenderLoading(false));
   }
 
-  function closeAllPopups() {
+  const closeAllPopups = () => {
     setEditAvatarPopupOpen(false);
     setEditProfilePopupOpen(false);
     setAddPlacePopupOpen(false);
     setSelectedCard(false);
     setInfoTooltip(false);
-    // setIsDeletePopupOpen(false);
   }
 
   return (
@@ -239,7 +239,12 @@ function App() {
               path="/"
               element={
                 <>
-                  <Header title="Выйти" route="/sign-in" mail = {emailLogin} onClick = {onSignOut} />
+                  <Header
+                    title="Выйти"
+                    route="/sign-in"
+                    mail={emailLogin}
+                    onClick={onSignOut}
+                  />
                   <ProtectedRoute
                     component={Main}
                     loggedIn={loggedIn}
@@ -266,13 +271,7 @@ function App() {
             onUpdateUser={handleUpdateUser}
             renderLoading={renderLoading ? "Сохранение..." : "Сохранить"}
           />
-          <PopupWithForm
-            // isOpen={isDeletePopupOpen}
-            // onClose={closeAllPopups}
-            title={"Вы уверены?"}
-            buttonText={"Да"}
-            name={"delete"}
-          />
+          <PopupWithForm />
           <AddPlacePopup
             isOpen={isAddPlacePopupOpen}
             onClose={closeAllPopups}

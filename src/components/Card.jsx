@@ -9,17 +9,17 @@ export default function Card(card) {
     isLiked && "elements__group_active"
   }`;
 
-  function handleClick() {
+  const handleClick = () => {
     card.onCardClick(card);
-  }
+  };
 
-  function handleDeleteClick() {
+  const handleDeleteClick = () => {
     card.onDeleteCard(card._id);
-  }
+  };
 
-  function handleCardLike() {
+  const handleCardLike = () => {
     card.onCardLike(card);
-  }
+  };
 
   return (
     <>
