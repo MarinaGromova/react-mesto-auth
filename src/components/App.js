@@ -58,7 +58,7 @@ function App() {
         localStorage.setItem("jwt", response.token);
         setLoggedIn(true);
         setEmailLogin(email);
-        navigate("/");
+        navigate("'/sign-in', {replace: true}");
       })
       .catch(() => {
         setImagePopup(errorImage);
@@ -70,7 +70,7 @@ function App() {
   const onSignOut = () => {
     setLoggedIn(false);
     setEmailLogin(null);
-    navigate("/sign-in");
+    navigate("/sign-in', {replace: true}");
     localStorage.removeItem("jwt");
   };
 
@@ -83,6 +83,7 @@ function App() {
           if (response) {
             setLoggedIn(true);
             setEmailLogin(response.data.email);
+            navigate("/", { replace: true });
           }
         })
         .catch((error) => {
@@ -108,7 +109,8 @@ function App() {
         closeAllPopups();
       }
     };
-    return document.addEventListener("keydown", closeByEscape);
+    document.addEventListener("keydown", closeByEscape);
+    return () => {document.removeEventListener("keydown", closeByEscape)} ;
   }, [
     isEditAvatarPopupOpen,
     isEditProfilePopupOpen,
@@ -180,12 +182,12 @@ function App() {
       .finally(() => setrenderLoading(false));
   };
 
-  const handleUpdateAvatar = (data) => {
+  const handleUpdateAvatar = ({ avatar }) => {
     setrenderLoading(true);
     api
-      .patchAvatarUrl(data)
-      .then((res) => {
-        setCurrentUser(res);
+      .patchAvatarUrl({ avatar })
+      .then((result) => {
+        setCurrentUser(result.avatar);
         closeAllPopups();
       })
       .catch((err) => console.log(`Ошибка: ${err}`))
@@ -202,7 +204,7 @@ function App() {
       })
       .catch((err) => console.log(`Ошибка: ${err}`))
       .finally(() => setrenderLoading(false));
-  }
+  };
 
   const closeAllPopups = () => {
     setEditAvatarPopupOpen(false);
@@ -210,7 +212,7 @@ function App() {
     setAddPlacePopupOpen(false);
     setSelectedCard(false);
     setInfoTooltip(false);
-  }
+  };
 
   return (
     <CurrentUserContext.Provider value={currentUser}>

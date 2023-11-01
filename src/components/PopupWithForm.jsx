@@ -9,7 +9,6 @@ export default function PopupWithForm(props) {
         <button
           onClick={props.onClose}
           type="button"
-          aria-label="Закрыть"
           className="popup__container-close"
         ></button>
         <h2 className="popup__container-title">{props.title}</h2>
