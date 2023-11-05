@@ -182,12 +182,12 @@ function App() {
       .finally(() => setrenderLoading(false));
   };
 
-  const handleUpdateAvatar = ({ avatar }) => {
+  const handleUpdateAvatar = (avatar) => {
     setrenderLoading(true);
     api
-      .patchAvatarUrl({ avatar })
+      .patchAvatarUrl(avatar)
       .then((result) => {
-        setCurrentUser(result.avatar);
+        setCurrentUser(result);
         closeAllPopups();
       })
       .catch((err) => console.log(`Ошибка: ${err}`))
